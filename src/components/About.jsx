@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import SectionHeader from './ui/SectionHeader';
 import { PERSONAL } from '../data/portfolio';
-
+import profPic from '../public/professional-pic.png';
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 22 },
   whileInView: { opacity: 1, y: 0 },
@@ -25,6 +25,12 @@ const SIDE_LINKS = [
   { icon: '⚡', label: 'LeetCode', href: PERSONAL.leetcode, amber: true },
   { icon: '💼', label: 'Upwork',   href: PERSONAL.upwork   },
   { icon: '✉',  label: 'Email',    href: `mailto:${PERSONAL.email}` },
+  {
+    icon: '📄',
+    label: 'Download CV',
+    href: 'https://drive.google.com/file/d/1qCFz0zFDIve5CYORDHpyAiMFK-VvlGyD/view',
+    cyan: true
+  },
 ];
 
 export default function About() {
@@ -62,7 +68,14 @@ export default function About() {
                   cursor-default select-none
                 "
               >
-                MM
+                {/* Updated the background from text to the profile picture */}
+                <img
+                  src={profPic}
+                  alt="Profile"
+                  className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-300"
+                />
+                {/* Neon overlay */}
+                <div className="absolute inset-0 rounded-2xl border-[3px] border-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </motion.div>
               <div className="flex flex-col gap-2">
                 {SIDE_LINKS.map(({ icon, label, href, amber }) => (
