@@ -4,10 +4,14 @@ import { Moon, Sun, Menu, X, Shield } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { useScrollSpy } from '../hooks/useScrollSpy';
 import { NAV_LINKS, PERSONAL } from '../data/portfolio';
+import Logo from './Logo'; 
+import { useTranslation } from 'react-i18next'; 
+import LanguageToggle from './LanguageToggle';
 
 const SECTION_IDS = NAV_LINKS.map(l => l.href);
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { isDark, toggle } = useTheme();
   const [scrolled, setScrolled]   = useState(false);
   const [menuOpen, setMenuOpen]   = useState(false);
@@ -41,24 +45,23 @@ export default function Navbar() {
     >
       <div className="max-w-[1060px] mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-14">
 
-        {/* Logo */}
+        {/* Logo Section */}
         <motion.button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          whileHover={{ scale: 1.04 }}
-          className="flex items-center gap-2"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          className="flex items-center gap-2 group"
         >
-          <div className="w-8 h-8 rounded-[9px] bg-gradient-to-br from-cyan-400 to-emerald-400 flex items-center justify-center font-display font-black text-[14px] text-zinc-950 shadow-[0_0_14px_rgba(34,211,238,.35)] transition-shadow duration-300 hover:shadow-[0_0_22px_rgba(34,211,238,.55)]">
-            M
-          </div>
-          <span className="font-display font-bold text-[14px] dark:text-zinc-100 text-zinc-900 hidden sm:block">
-            Muhammad<span className="text-cyan-400">.</span>
-          </span>
+          <Logo />
         </motion.button>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map(({ href, label }) => {
             const isActive = activeId === href;
+            // Standardizing the key to lowercase to match i18n.js
+            const translationKey = label.toLowerCase().trim();
+
             return (
               <button
                 key={href}
@@ -72,7 +75,9 @@ export default function Navbar() {
                   }
                 `}
               >
-                {label}
+                {/* Dynamically translated label */}
+                {t(translationKey)}
+
                 {/* Active underline */}
                 <span
                   className={`
@@ -88,11 +93,15 @@ export default function Navbar() {
 
         {/* Right actions */}
         <div className="flex items-center gap-2">
-          {/* Security badge */}
+          {/* Security badge - Now Translated */}
           <div className="hidden sm:flex items-center gap-1.5 rounded-full border border-emerald-400/30 bg-emerald-400/7 px-2.5 py-1 transition-all duration-200 hover:bg-emerald-400/14">
             <Shield size={10} className="text-emerald-400" />
-            <span className="text-[9.5px] font-mono font-semibold text-emerald-400">Secured</span>
+            <span className="text-[9.5px] font-mono font-semibold text-emerald-400 uppercase tracking-wider">
+              {t('secured')}
+            </span>
           </div>
+          
+          {/* <LanguageToggle /> */}
 
           {/* Theme toggle */}
           <motion.button
@@ -157,7 +166,7 @@ export default function Navbar() {
                       }
                     `}
                   >
-                    {label}
+                    {t(label.toLowerCase().trim())}
                   </button>
                 </motion.li>
               ))}

@@ -26,8 +26,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-    <!-- Favicon (inline SVG) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%2306b6d4'/><text y='22' x='6' font-family='sans-serif' font-weight='800' font-size='18' fill='%23000'>M</text></svg>" />
+    <!-- 
+      FINAL LOGO FIX
+      1. Use 'shortcut icon' to override browser defaults.
+      2. Ensure llogo.png is directly in the /public folder.
+      3. No leading slash because of your base: '/Portfolio/' config.
+    -->
+    <link rel="shortcut icon" type="image/png" href="llogo.png?v=5" />
+    <link rel="icon" type="image/png" sizes="32x32" href="llogo.png?v=5" />
+    <link rel="apple-touch-icon" href="llogo.png?v=5" />
+    
+    <meta name="theme-color" content="#09090b" />
   </head>
   <body>
     <div id="root"></div>

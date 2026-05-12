@@ -1,179 +1,154 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react'; // Added useEffect
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Copy, CheckCheck, ExternalLink, Github, Linkedin, Shield } from 'lucide-react';
-import SectionHeader from './ui/SectionHeader';
-import Toast from './ui/Toast';
-import { PERSONAL } from '../data/portfolio';
-
-const SOCIAL_LINKS = [
-  { icon: <Github size={18} />,  label: 'GitHub',   href: PERSONAL.github,   color: 'default' },
-  { icon: <Linkedin size={18} />,label: 'LinkedIn',  href: PERSONAL.linkedin, color: 'default' },
-  { icon: '⚡',                  label: 'LeetCode',  href: PERSONAL.leetcode, color: 'amber'   },
-  { icon: '💼',                  label: 'Upwork',    href: PERSONAL.upwork,   color: 'sec'     },
-  { icon: <Mail size={18} />,    label: 'Email',     href: `mailto:${PERSONAL.email}`, color: 'default' },
-  { icon: <Shield size={18} />,  label: 'Certs',     href: PERSONAL.certs,    color: 'sec'     },
-];
-
-const QUICK_FACTS = [
-  { emoji: '🧠', label: 'Specialisation', value: 'AI/RAG · Full Stack · Cybersecurity'      },
-  { emoji: '⚡', label: 'LeetCode',       value: 'leetcode.com/u/MuhammadMagdyy',  link: PERSONAL.leetcode },
-  { emoji: '🎓', label: 'Education',      value: 'BSc MET · German University in Cairo'     },
-  { emoji: '🌍', label: 'Languages',      value: 'Arabic (Native) · English (Pro) · German (A1)' },
-  { emoji: '📅', label: 'Experience',     value: 'Ulm University · Mansour Group (SAP)'     },
-];
-
+import { Send, CheckCircle2, Sparkles } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+import HeroBackground from './HeroBackground';
 export default function Contact() {
-  const [copied, setCopied]       = useState(false);
-  const [showToast, setShowToast] = useState(false);
+  const formRef = useRef();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSent, setIsSent] = useState(false);
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(PERSONAL.email).then(() => {
-      setCopied(true);
-      setShowToast(true);
-      setTimeout(() => { setCopied(false); setShowToast(false); }, 2400);
+  // Initialize EmailJS once when the component mounts
+  useEffect(() => {
+    emailjs.init("o2BgROCjrz-ZdRJeV");
+  }, []);
+
+  const sendEmail = (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    emailjs.sendForm(
+      'service_6votd0p', 
+      'template_jpsj0fv', 
+      formRef.current, 
+      'o2BgROCjrz-ZdRJeV'
+    )
+    .then((result) => {
+        console.log('SUCCESS!', result.text);
+        setIsSubmitting(false);
+        setIsSent(true);
+        setTimeout(() => setIsSent(false), 5000);
+    }, (error) => {
+        // Detailed error logging to help you debug
+        console.error('EmailJS FAILED...', error);
+        setIsSubmitting(false);
+        alert(`Transmission failed: ${error.text}. Please try again.`);
     });
   };
 
   return (
-    <section id="contact" className="dark:bg-[#09090b] bg-slate-50">
-      <Toast show={showToast} message="✓ Email copied to clipboard!" />
+    
+      
+    <section id="contact" className="dark:bg-[#030303] bg-white py-24 relative overflow-hidden">
+      
+      {/* Background Ambient Glow */}
+      <div className="relative top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
+        <HeroBackground />
+      <div className="max-w-[700px] mx-auto px-6 relative z-10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-4xl md:text-5xl font-display font-bold tracking-tight dark:text-white text-zinc-900 mb-4">
+            Let's build <span className="text-cyan-500">together.</span>
+          </h2>
+          <p className="text-zinc-500 dark:text-zinc-400 font-body text-sm">
+            Direct Line: <span className="text-zinc-800 dark:text-zinc-200 font-mono">iimuhammadmagdy@gmail.com</span>
+          </p>
+        </motion.div>
 
-      <div className="max-w-[1060px] mx-auto section-pad">
-        <SectionHeader
-          eyebrow="Get In Touch"
-          title="Let's Build Something"
-          accent="Intelligent"
-          subtitle="Open to full-time roles, AI consulting, and freelance projects. Average response under 24 hours."
-        />
+        <div className="relative group">
+          {/* Decorative Border Glow */}
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-cyan-500 to-emerald-500 rounded-[2.5rem] opacity-20 group-hover:opacity-40 transition duration-1000 blur-sm"></div>
+          
+          <div className="relative dark:bg-zinc-900/90 bg-zinc-50/80 backdrop-blur-2xl rounded-[2.4rem] p-8 md:p-12 border dark:border-white/5 border-black/5 shadow-2xl">
+            <AnimatePresence mode="wait">
+              {!isSent ? (
+                <motion.form
+                  ref={formRef}
+                  key="form"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  onSubmit={sendEmail}
+                  className="space-y-6"
+                >
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 ml-1">Full Name</label>
+                      <input 
+                        required 
+                        type="text" 
+                        name="user_name" // Matches {{user_name}} in template
+                        className="w-full bg-white/5 dark:bg-zinc-800/30 border dark:border-zinc-700/50 border-zinc-200 rounded-2xl px-5 py-4 outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/5 transition-all dark:text-white" 
+                        placeholder="Adel Shakl" 
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 ml-1">Email Address</label>
+                      <input 
+                        required 
+                        type="email" 
+                        name="user_email" // Matches {{user_email}} in template
+                        className="w-full bg-white/5 dark:bg-zinc-800/30 border dark:border-zinc-700/50 border-zinc-200 rounded-2xl px-5 py-4 outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/5 transition-all dark:text-white" 
+                        placeholder="hello@example.com" 
+                      />
+                    </div>
+                  </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-[860px] mx-auto">
+                  <div className="space-y-2">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-bold text-zinc-500 ml-1">Message</label>
+                    <textarea 
+                      required 
+                      rows={5} 
+                      name="message" // Matches {{message}} in template
+                      className="w-full bg-white/5 dark:bg-zinc-800/30 border dark:border-zinc-700/50 border-zinc-200 rounded-2xl px-5 py-5 outline-none focus:border-cyan-500/50 focus:ring-4 focus:ring-cyan-500/5 transition-all dark:text-white resize-none" 
+                      placeholder="Briefly describe your project..." 
+                    />
+                  </div>
 
-          {/* ── Left: contact info ── */}
-          <motion.div
-            initial={{ opacity: 0, x: -22 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
-            className="shimmer-card rounded-2xl border dark:border-zinc-800 border-zinc-200 dark:bg-zinc-900/60 bg-white p-6 transition-all duration-300 hover:border-cyan-400/30 hover:shadow-cyber"
-          >
-            <p className="text-[9.5px] font-mono uppercase tracking-[0.2em] dark:text-zinc-500 text-zinc-400 mb-4 flex items-center gap-2">
-              <Mail size={12} className="text-cyan-400" /> Direct Contact
-            </p>
-
-            <h3 className="font-display font-bold text-[18px] dark:text-zinc-100 text-zinc-900 mb-2">Say hello 👋</h3>
-            <p className="text-[13px] dark:text-zinc-400 text-zinc-600 font-body leading-relaxed mb-5">
-              Whether you have a project idea, a role to fill, or just want to connect — my inbox is always open.
-            </p>
-
-            {/* Copy email button */}
-            <motion.button
-              onClick={handleCopy}
-              whileHover={{ scale: 1.01, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              className="
-                w-full flex items-center justify-between
-                border dark:border-zinc-700 border-zinc-200
-                dark:bg-zinc-800/60 bg-zinc-50
-                rounded-xl px-4 py-3 mb-5
-                transition-all duration-200
-                hover:border-cyan-400/55
-                hover:shadow-[0_4px_14px_rgba(34,211,238,.12)]
-                group
-              "
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <Mail size={14} className="text-cyan-400 flex-shrink-0" />
-                <span className="font-mono text-[11.5px] dark:text-zinc-300 text-zinc-700 truncate">{PERSONAL.email}</span>
-              </div>
-              <AnimatePresence mode="wait" initial={false}>
+                  <motion.button
+                    whileHover={{ scale: 1.02, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    disabled={isSubmitting}
+                    className="relative w-full group overflow-hidden rounded-2xl bg-zinc-900 dark:bg-white p-5 flex items-center justify-center gap-3 transition-all"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-emerald-400 opacity-0 group-hover:opacity-10 transition-opacity" />
+                    
+                    {isSubmitting ? (
+                      <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <>
+                        <span className="font-bold text-sm text-white dark:text-black uppercase tracking-widest">Transmit Message</span>
+                        <Send size={16} className="text-cyan-500 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                      </>
+                    )}
+                  </motion.button>
+                </motion.form>
+              ) : (
                 <motion.div
-                  key={copied ? 'check' : 'copy'}
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: 1,   opacity: 1 }}
-                  exit={{   scale: 0.6,  opacity: 0 }}
-                  transition={{ duration: 0.15 }}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="py-16 text-center"
                 >
-                  {copied
-                    ? <CheckCheck size={14} className="text-emerald-400" />
-                    : <Copy       size={14} className="dark:text-zinc-500 text-zinc-400 group-hover:text-cyan-400 transition-colors" />
-                  }
+                  <div className="relative inline-block mb-6">
+                    <motion.div 
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 0.5 }}
+                      className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto"
+                    >
+                      <CheckCircle2 size={40} className="text-emerald-500" />
+                    </motion.div>
+                    <Sparkles className="absolute -top-2 -right-2 text-cyan-400 animate-pulse" size={20} />
+                  </div>
+                  <h3 className="text-2xl font-bold dark:text-white mb-2 tracking-tight">Transmission Received</h3>
+                  <p className="text-zinc-500 dark:text-zinc-400 text-sm">Thank you for reaching out. I'll get back to you shortly.</p>
                 </motion.div>
-              </AnimatePresence>
-            </motion.button>
-
-            {/* Social grid */}
-            <p className="text-[9.5px] font-mono uppercase tracking-[0.2em] dark:text-zinc-500 text-zinc-400 mb-3">
-              🌐 Find Me Online
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {SOCIAL_LINKS.map(({ icon, label, href, color }) => (
-                <motion.a
-                  key={label}
-                  href={href}
-                  target={href.startsWith('mailto') ? undefined : '_blank'}
-                  rel="noopener noreferrer"
-                  whileHover={{ y: -3, scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className={`
-                    flex flex-col items-center gap-1.5 rounded-xl
-                    border dark:border-zinc-800 border-zinc-200
-                    dark:bg-zinc-800/40 bg-zinc-50
-                    py-3 px-2 transition-all duration-200
-                    ${color === 'amber'
-                      ? 'dark:text-amber-400 text-amber-500 hover:border-amber-400/40 hover:shadow-amber hover:bg-amber-400/5'
-                      : color === 'sec'
-                      ? 'dark:text-emerald-400 text-emerald-500 hover:border-emerald-400/40 hover:shadow-sec hover:bg-emerald-400/5'
-                      : 'dark:text-zinc-400 text-zinc-500 hover:border-cyan-400/40 hover:text-cyan-500 dark:hover:text-cyan-400 hover:shadow-cyber hover:bg-cyan-400/4'
-                    }
-                  `}
-                >
-                  <span className="text-[18px] leading-none">
-                    {typeof icon === 'string' ? icon : icon}
-                  </span>
-                  <span className="text-[9px] font-mono">{label}</span>
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* ── Right: availability + facts ── */}
-          <motion.div
-            initial={{ opacity: 0, x: 22 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.65, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col gap-4"
-          >
-            {/* Availability card */}
-            <div className="rounded-xl border border-emerald-400/22 bg-emerald-400/5 dark:bg-emerald-400/5 p-5 transition-all duration-300 hover:border-emerald-400/40 hover:bg-emerald-400/8">
-              <div className="flex items-center gap-2 mb-3">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] font-mono font-bold text-emerald-400 uppercase tracking-[0.12em]">Currently Available</span>
-              </div>
-              <p className="font-display font-bold text-[16px] dark:text-zinc-100 text-zinc-900 mb-2">Open to opportunities</p>
-              <p className="text-[13px] dark:text-zinc-400 text-zinc-600 font-body leading-relaxed">
-                Full-time engineering roles, AI consulting, and freelance development — remote or Cairo-based.
-              </p>
-            </div>
-
-            {/* Quick facts */}
-            {QUICK_FACTS.map(({ emoji, label, value, link }) => (
-              <motion.div
-                key={label}
-                whileHover={{ x: 3 }}
-                className="flex items-center gap-3 border dark:border-zinc-800 border-zinc-200 dark:bg-zinc-900/60 bg-white rounded-xl px-4 py-3 transition-all duration-200 hover:border-cyan-400/30 hover:dark:border-cyan-400/30 group"
-              >
-                <span className="text-[18px] flex-shrink-0 transition-transform duration-200 group-hover:scale-110">{emoji}</span>
-                <div className="min-w-0">
-                  <p className="text-[9px] font-mono uppercase tracking-[0.14em] dark:text-zinc-500 text-zinc-400 mb-0.5">{label}</p>
-                  {link
-                    ? <a href={link} target="_blank" rel="noopener noreferrer" className="text-[12px] text-amber-400 hover:text-amber-300 transition-colors font-body">{value}</a>
-                    : <p className="text-[12px] dark:text-zinc-300 text-zinc-700 font-body truncate">{value}</p>
-                  }
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </section>
